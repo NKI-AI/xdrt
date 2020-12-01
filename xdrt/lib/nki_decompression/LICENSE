@@ -1,0 +1,11 @@
+From the project web page (2012-12-21)
+http://ingenium.home.xs4all.nl/dicom.html
+
+Within the EC Conquest project, a full featured DICOM server has been
+developed based on and heavily extending the public domain UCDMC DICOM
+code developed by Mark Oskin when he was at the Medical Center of the
+University of California at Davis.
+
+The Conquest DICOM software was written by Marcel van Herk and Lambert
+Zijp at the Netherlands Cancer Institute. We have decided to provide
+our extended DICOM software also to the public domain.
