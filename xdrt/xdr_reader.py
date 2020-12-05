@@ -86,7 +86,9 @@ class XDRHeader:
 
         if self.__header_dict["field"] == "rectilinear":
             warnings.warn(
-                f"field is `rectilinear`, this is only partly supported and currently handled as `uniform`."
+                f"field is `rectilinear`, this is only partly supported and currently handled as `uniform`. "
+                f"Likely this does not work. Create an issue at https://github.com/NKI-AI/xdrt/issues "
+                f"if your application requires this."
             )
         self.field = self.__header_dict["field"]
 
@@ -206,15 +208,20 @@ class XDRHeader:
         if self.affine is not None:
             return self.affine[0:3, 0:3].flatten().tolist()
 
-        base_affine = np.asarray([[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
+        # This happens when no ScanToSiddon is provided in the XDR header.
+        default_siddon_affine = np.array(
+            [[0.0, 0.0, 1.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]]
+        )
+        # Convert to ITK coordinates
+        default_affine = np.matmul(SIDDON_TO_DICOM, default_siddon_affine)
 
-        return base_affine.flatten().tolist()
+        return default_affine.flatten().tolist()
 
     @property
     def origin(self):
         if self.affine is not None:
             return self.affine[0:3, -1].flatten().tolist()[::-1]
-        return None
+        return [0.0, 0.0, 0.0]
 
     def xdr_affine_to_affine(self, affine_xdr, min_ext):
         affine_xdr = affine_xdr.transpose()
@@ -409,7 +416,7 @@ def read(xdr_filename, stop_before_data=False):
 def read_as_simpleitk(
     xdr_filename,
     lps_orientation=True,
-    save_header=False,
+    save_header=False
 ):
     """Read XDR file as an SimpleITK image.
 
@@ -426,7 +433,7 @@ def read_as_simpleitk(
 
     Returns
     -------
-    sitk.Image
+    sitk.Image or list of sitk.Image
     """
 
     xdr_image = read(xdr_filename, stop_before_data=False)

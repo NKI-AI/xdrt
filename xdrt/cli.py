@@ -63,7 +63,9 @@ def main():
         "--intercept", type=float, help="Apply intercept to the output image."
     )
     parser.add_argument(
-        "--cast", type=str, help=f"Cast the output. One of {', '.join(list(DATATYPES.keys()))}."
+        "--cast",
+        type=str,
+        help=f"Cast the output. One of {', '.join(list(DATATYPES.keys()))}.",
     )
 
     args = parser.parse_args()
@@ -103,7 +105,7 @@ def main():
                 f"xdr2img: error: --temporal-average can only be used with 4D images."
             )
 
-        weights = 1.
+        weights = 1.0
         if args.temporal_average == "weighted":
             if "phase" not in sitk_image.GetMetaDataKeys():
                 print("Phase is not available. Temporal average will be mean.")
