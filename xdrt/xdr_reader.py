@@ -416,11 +416,7 @@ def read(xdr_filename, stop_before_data=False):
     return XDRImage(header, data=data)
 
 
-def read_as_simpleitk(
-    xdr_filename,
-    lps_orientation=True,
-    save_header=False
-):
+def read_as_simpleitk(xdr_filename, lps_orientation=True, save_header=False):
     """Read XDR file as an SimpleITK image.
 
     Arguments
