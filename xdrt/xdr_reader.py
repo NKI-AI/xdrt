@@ -162,7 +162,7 @@ class XDRHeader:
                 phase_len = array.sum()
                 # Due to round-off errors, sometimes the phase does not completely add up to 1.
                 # Even with a respiratory cycle of 10s, this is a deviation of less than 1ms.
-                if (phase_len >= 0.9999) or (phase_len > 1.0001):
+                if (phase_len < 0.9999) or (phase_len > 1.0001):
                     raise ValueError(
                         f"Phase was defined in XDR, but 0.9999 <= sum(phase) <= 1. Got {phase_len}."
                     )
