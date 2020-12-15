@@ -1,15 +1,18 @@
 # coding=utf-8
+# Copyright (c) Jonas Teuwen
 import numpy as np
 import sys
 import string
 import warnings
 import ctypes
 import SimpleITK as sitk
+import logging
 
 from os import path
 from pathlib import Path
+from datetime import datetime
 
-from xdrt.utils import camel_to_snake
+from xdrt.utils import camel_to_snake, make_integer, DATATYPES
 
 
 nki_decompression_available = False
@@ -124,7 +127,8 @@ class XDRHeader:
             value = self.__header_dict.get(key, None)
             if not value:
                 continue
-            setattr(self, key[2:].lower(), value)
+            save_key = key[2:].lower()
+            setattr(self, save_key, value)
 
         # Check if file is external
         self.external_data = False
@@ -162,9 +166,9 @@ class XDRHeader:
                 phase_len = array.sum()
                 # Due to round-off errors, sometimes the phase does not completely add up to 1.
                 # Even with a respiratory cycle of 10s, this is a deviation of less than 1ms.
-                if (phase_len < 0.9999) or (phase_len > 1.0001):
+                if not (0.9999 <= phase_len <= 1.0001):
                     raise ValueError(
-                        f"Phase was defined in XDR, but 0.9999 <= sum(phase) <= 1. Got {phase_len}."
+                        f"Phase was defined in XDR, but 0.9999 <= sum(phase) <= 1.0001 is required. Got {phase_len}."
                     )
 
                 self.phase = array
@@ -416,13 +420,64 @@ def read(xdr_filename, stop_before_data=False):
     return XDRImage(header, data=data)
 
 
-def read_as_simpleitk(xdr_filename, lps_orientation=True, save_header=False):
+def postprocess_xdr_image(
+    xdr_image: XDRImage,
+    temporal_average: str,
+    slope: float,
+    intercept: float,
+    cast: str,
+) -> XDRImage:
+    if temporal_average:
+        logging.info(f"Computing temporal average: {temporal_average}.")
+
+        if temporal_average not in ["mean", "weighted"]:
+            sys.exit(
+                f"xdr2img: error: --temporal-average must be either `mean` or `weighted`."
+            )
+
+        if xdr_image.header.ndim != 4:
+            sys.exit(
+                f"xdr2img: error: --temporal-average can only be used with 4D images."
+            )
+
+        weights = 1.0
+        if temporal_average == "weighted":
+            if not hasattr(xdr_image.header, "phase"):
+                logging.warning(
+                    "Phase is not available. Temporal average will be mean."
+                )
+            else:
+                weights = np.asarray(xdr_image.header.phase)
+
+        xdr_image.data = (weights * xdr_image.data.T).T.sum(axis=0)
+        xdr_image.header.ndim = 3  # Data is now 3D
+
+    if slope:
+        logging.info(f"Slope set: {slope}.")
+        xdr_image.data = xdr_image.data * make_integer(slope)
+
+    if intercept:
+        logging.info(f"Intercept set: {intercept}.")
+        xdr_image.data = xdr_image.data + make_integer(intercept)
+
+    if cast:
+        logging.info(f"Casting to: {cast}.")
+        if cast not in list(DATATYPES.keys()):
+            sys.exit(
+                f"xdr2img: error: Expected casting type to be one of {list(DATATYPES.keys())}. Got {cast}."
+            )
+        xdr_image.data = xdr_image.data.astype(DATATYPES[cast])
+
+    return xdr_image
+
+
+def read_as_simpleitk(xdr_image, lps_orientation=True, save_header=False):
     """Read XDR file as an SimpleITK image.
 
     Arguments
     ---------
-    xdr_filename : PathLike
-        Path to XDR file.
+    xdr_filename : XDRImage
+        The XDRImage.
     lps_orientation : bool
         The orientation of the underlying data array will be rotated to ensure the orientation matrix is as
         close to a unit matrix as possible.
@@ -435,8 +490,8 @@ def read_as_simpleitk(xdr_filename, lps_orientation=True, save_header=False):
     sitk.Image or list of sitk.Image
     """
 
-    xdr_image = read(xdr_filename, stop_before_data=False)
     data = xdr_image.data
+
     header = xdr_image.header
     images = []
 

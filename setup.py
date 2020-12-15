@@ -109,7 +109,8 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "xdr2img=xdrt.cli:main",
+            "xdr2img=xdrt.cli.xdr:main",
+            "xvi2img=xdrt.cli.xvi:main",
         ],
     },
     description="XDRT (XDR Toolkit) is a python toolkit to work with the XDR file format.",

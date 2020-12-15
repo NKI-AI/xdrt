@@ -1,4 +1,5 @@
 # coding=utf-8
+# Copyright (c) Jonas Teuwen
 """Top-level package for XDR Toolkit."""
 
 __author__ = """Jonas Teuwen"""
