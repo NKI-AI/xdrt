@@ -23,7 +23,7 @@ try:
         Path(path.dirname(path.abspath(__file__))).parent / "lib" / nki_decompress_lib
     )
     nki_decompression_available = True
-except ImportError as e:
+except (ImportError, OSError) as e:
     warnings.warn(
         f"Decompression library not available. Will not be able to read compressed XDR: {e}."
     )
