@@ -2,10 +2,14 @@ include AUTHORS.md
 include HISTORY.md
 include README.md
 include CMakeLists.txt
-recursive-include LICENSE
+include LICENSE
 
 recursive-include tests *
+recursive-include xdrt/lib *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
+recursive-exclude * *.dylib
+recursive-exclude * *.dll
+recursive-exclude * *.so
 
-recursive-include docs *.rst *.md conf.py Makefile make.bat *.jpg *.png *.gif *.cxx *.h
+recursive-include docs *.rst *.md conf.py Makefile make.bat *.jpg *.png *.gif
