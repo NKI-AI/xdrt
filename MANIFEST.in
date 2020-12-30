@@ -2,6 +2,7 @@ include AUTHORS.md
 include HISTORY.md
 include LICENSE
 include README.md
+include CMakeLists.txt
 
 recursive-include tests *
 recursive-exclude * __pycache__
