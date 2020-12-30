@@ -12,7 +12,7 @@ To install XDR Toolkit, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install xdr
+    $ pip install xdrt
 
 This is the preferred method to install XDR Toolkit, as it will always install the most recent stable release.
 
@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/jonasteuwen/xdr
+    $ git clone git://github.com/NKI-AI/xdrt
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl -OJL https://github.com/jonasteuwen/xdr/tarball/master
+    $ curl -OJL https://github.com/NKI-AI/xdrt/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -46,6 +46,10 @@ Once you have a copy of the source, you can install it with:
 
     $ python setup.py install
 
+This will require that you have cmake installed. Check the documentation of your operating system, or create
+an `issue`_, so we can improve the documentation.
 
-.. _Github repo: https://github.com/jonasteuwen/xdr
-.. _tarball: https://github.com/jonasteuwen/xdr/tarball/master
+
+.. _Github repo: https://github.com/NKI-AI/xdrt
+.. _tarball: https://github.com/NKI-AI/xdr/tarball/master
+.. _issue: https://github.com/NKI-AI/xdrt/issues

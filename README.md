@@ -39,4 +39,4 @@ The following is not yet supported:
 * Only `uniform` grids are currently supported.
 * Protocol is not detected from the XVI file (e.g. 4D-CBCT + SBRT). Images in fraction are output consecutively.
 
-Create an [issue](https://github.com/NKI-AI/xdrt/issues) if this is an urgent for you.
+Create an [issue](https://github.com/NKI-AI/xdrt/issues) if this is an urgent issue for you.
