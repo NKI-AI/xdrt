@@ -21,7 +21,8 @@ The reading of `.xvi` files is also supported, allowing to find the map the XDR 
 
 ## How to use
 The package needs to compile the decompression library, which can be done with:
-`python setup.py install` or with `pip install git+https://github.com/NKI-AI/xdrt.git`.
+`python setup.py install` or with `pip install git+https://github.com/NKI-AI/xdrt.git`
+or from PyPi using `pip install xdrt`.
 
 * The command line program `xdr2img image.xdr image.nrrd` converts images from XDR
 to any ITK supported format. For more details check `xdr2img --help`.
