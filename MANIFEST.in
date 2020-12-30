@@ -1,11 +1,11 @@
 include AUTHORS.md
 include HISTORY.md
-include LICENSE
 include README.md
 include CMakeLists.txt
+recursive-include LICENSE
 
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 
-recursive-include docs *.rst *.md conf.py Makefile make.bat *.jpg *.png *.gif
+recursive-include docs *.rst *.md conf.py Makefile make.bat *.jpg *.png *.gif *.cxx *.h
