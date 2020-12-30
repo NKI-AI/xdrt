@@ -2,7 +2,7 @@
 # Copyright (c) Jonas Teuwen
 import configparser
 import pathlib
-import warnings
+import logging
 
 from xdrt.utils import parse_xvi_datetime, parse_xvi_url
 from typing import Optional, Dict, List
@@ -31,8 +31,7 @@ class XVIFile:
         self, xvi_filename: pathlib.Path, files_root: Optional[pathlib.Path] = None
     ):
         """
-        Object holding an XVI file
-
+        Object holding an XVI file.
 
         Parameters
         ----------
@@ -42,10 +41,9 @@ class XVIFile:
             Path to the root directory where the files can be found. This will be prepended to the reconstruction
             filename as derived from xvi_filename. If set, there will be a check if the reconstruction files exist.
         """
-        config = configparser.ConfigParser()
         if not pathlib.Path(xvi_filename).exists():
             raise FileNotFoundError(f"XVI file {xvi_filename} does not exist.")
-
+        config = configparser.ConfigParser()
         self.xvi_filename = xvi_filename
         config.read(xvi_filename)
         self._xvi_dict = config._sections  # noqa
@@ -93,9 +91,9 @@ class XVIFile:
         # It is possible that there are no .RECON keys, in this case, we drop the extra metadata.
         if not reconstructions:
             reconstructions = {k: {} for k in exports}
-            warnings.warn(
+            logging.warning(
                 f"{self.xvi_filename} has no *.RECON keys. "
-                f"Resulting objects will hold no acquisition metadata."
+                f"Resulting XVIScan objects will hold no acquisition metadata."
             )
         else:
             reconstructions = {k: reconstructions[k] for k in exports}
