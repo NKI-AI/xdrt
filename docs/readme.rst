@@ -16,7 +16,7 @@ Features
 ========
 * Utilities to read (compressed) 3D and 4D XDR files in python.
 * Ability to read XVI files and link planning scans with cone-beam CT scans.
-* The command line program `xdr2img image.xdr image.nrrd` converts images from XDR to any ITK supported format. For more details check :code:`xdr2img --help`.
+* The command line program :code:`xdr2img image.xdr image.nrrd` converts images from XDR to any ITK supported format. For more details check :code:`xdr2img --help`.
 * The command line program :code:`xvi2img` reads XVI files and combined with the XDR files, writes to a new directory and image format. For more details check :code:`xvi2img --help`.
 
 Work in progress
