@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 
 """The setup script."""
+import ast
+
+with open("xdrt/__init__.py") as f:
+    for line in f:
+        if line.startswith("__version__"):
+            version = ast.parse(line).body[0].value.s  # type: ignore
+            break
 
 from setuptools import find_packages, Extension, setup
 
@@ -125,7 +132,7 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/NKI-AI/xdrt",
-    version="0.0.1",
+    version=version,
     zip_safe=False,
     ext_modules=[CMakeExtension("lib/nki_decompression")],
     cmdclass=dict(build_ext=CMakeBuild),

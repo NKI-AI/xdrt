@@ -4,7 +4,13 @@ import argparse
 import sys
 import string
 from xdrt.xvi_reader import XVIFile
-from xdrt.cli.utils import BaseArgs, dir_path, setup_logging, read_xdr_as_simpleitk, write_simpleitk_image
+from xdrt.cli.utils import (
+    BaseArgs,
+    dir_path,
+    setup_logging,
+    read_xdr_as_simpleitk,
+    write_simpleitk_image,
+)
 import pathlib
 import math
 import logging
