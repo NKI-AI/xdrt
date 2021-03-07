@@ -85,8 +85,8 @@ class XDRHeader:
         if self.__header_dict["field"] == "rectilinear":
             warnings.warn(
                 "field is `rectilinear`, this is only partly supported and currently handled as `uniform`. "
-                f"Likely this does not work. Create an issue at https://github.com/NKI-AI/xdrt/issues "
-                f"if your application requires this."
+                "Likely this does not work. Create an issue at https://github.com/NKI-AI/xdrt/issues "
+                "if your application requires this."
             )
         self.field = self.__header_dict["field"]
 
