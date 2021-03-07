@@ -39,14 +39,16 @@ test_requirements = [
     "pytest>=3",
 ]
 
-# This is from: https://www.benjack.io/2017/06/12/python-cpp-tests.html
+
 class CMakeExtension(Extension):
+    # This is from: https://www.benjack.io/2017/06/12/python-cpp-tests.html
     def __init__(self, name, sourcedir=""):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
 
 
 class CMakeBuild(build_ext):
+    # This is from: https://www.benjack.io/2017/06/12/python-cpp-tests.html
     def run(self):
         try:
             out = subprocess.check_output(["cmake", "--version"])
