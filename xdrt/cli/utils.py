@@ -23,8 +23,7 @@ def dir_path(path):
     path = pathlib.Path(path)
     if path.is_dir():
         return path
-    else:
-        raise argparse.ArgumentTypeError(f"{path} is not a valid directory.")
+    raise argparse.ArgumentTypeError(f"{path} is not a valid directory.")
 
 
 class BaseArgs(argparse.ArgumentParser):

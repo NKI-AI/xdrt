@@ -10,7 +10,6 @@ import logging
 
 from os import path
 from pathlib import Path
-from datetime import datetime
 
 from xdrt.utils import camel_to_snake, make_integer, DATATYPES
 
@@ -148,7 +147,7 @@ class XDRHeader:
                         f"Phase was defined in XDR but array has different length from number of time points. "
                         f"Got {len(array)} and {len(self.shape[0])}."
                     )
-                if not self.ndim == 4:
+                if self.ndim != 4:
                     raise ValueError(f"Phase was defined in XDR, but dimension is {self.ndim}.")
 
                 phase_len = array.sum()
@@ -280,8 +279,8 @@ def read(xdr_filename, stop_before_data=False):
         # Read until EOF
         if next_character == "" or (ord(next_character) == 12 and form_feed):
             break
-        else:
-            text_header.append(next_character)
+
+        text_header.append(next_character)
         form_feed = ord(next_character) == 12
 
         if header_counter <= 4:
