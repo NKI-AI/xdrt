@@ -70,6 +70,8 @@ class XDRHeader:
         self.min_ext = []
         self.max_ext = []
 
+        self.phase = None
+
     def __parse_header(self):
         if "#$$url" in self.__header_dict:
             self.url = self.__header_dict["#$$url"].strip()
@@ -109,7 +111,6 @@ class XDRHeader:
 
         self.original_dtype = self.__header_dict["data"]
         self.dtype = XDR_DTYPE_TO_PYTHON[self.original_dtype]
-        self.phase = None
 
         # Parse the array keys.
         self.parse_array_keys()
