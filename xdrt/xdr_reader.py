@@ -214,7 +214,8 @@ class XDRHeader:
             return self.affine[0:3, -1].flatten().tolist()[::-1]
         return [0.0, 0.0, 0.0]
 
-    def xdr_affine_to_affine(self, affine_xdr, min_ext):
+    @staticmethod
+    def xdr_affine_to_affine(affine_xdr, min_ext):
         affine_xdr = affine_xdr.transpose()
         affine = affine_xdr.copy()
         direction = affine[0:3, 0:3]
