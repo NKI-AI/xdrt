@@ -193,8 +193,7 @@ class XDRHeader:
 
             affine = self.xdr_affine_to_affine(self.scan_to_siddon, self.min_ext)
             return affine
-        else:
-            return None
+        return None
 
     @property
     def direction(self):
