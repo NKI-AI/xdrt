@@ -134,7 +134,7 @@ class XVIFile:
 
         if len(set(has_multiple_scans)) > 1:
             raise RuntimeError(
-                f"Any treatment has to be either completely SBRT (multiple scans per fraction) or not at all."
+                "Any treatment has to be either completely SBRT (multiple scans per fraction) or not at all."
             )
 
         self.fractions = fractions
