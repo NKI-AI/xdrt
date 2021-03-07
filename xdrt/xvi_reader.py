@@ -27,9 +27,7 @@ RELEVANT_RECONSTRUCTION_TAGS = [
 
 
 class XVIFile:
-    def __init__(
-        self, xvi_filename: pathlib.Path, files_root: Optional[pathlib.Path] = None
-    ):
+    def __init__(self, xvi_filename: pathlib.Path, files_root: Optional[pathlib.Path] = None):
         """
         Object holding an XVI file.
 
@@ -46,7 +44,7 @@ class XVIFile:
         config = configparser.ConfigParser()
         self.xvi_filename = xvi_filename
         config.read(xvi_filename)
-        self._xvi_dict = config._sections  # noqa
+        self._xvi_dict = config._sections  # type: ignore
         self.files_root = files_root
 
         self.num_scans = 0
@@ -78,14 +76,8 @@ class XVIFile:
     def __parse_exports(self):
         xvi_conf = self._xvi_dict
 
-        exports = {
-            _.replace(".EXPORT", ""): xvi_conf[_]
-            for _ in xvi_conf
-            if _.endswith(".EXPORT")
-        }
-        reconstructions = {
-            _.split(" ")[0]: xvi_conf[_] for _ in xvi_conf if _.endswith(".RECON")
-        }
+        exports = {_.replace(".EXPORT", ""): xvi_conf[_] for _ in xvi_conf if _.endswith(".EXPORT")}
+        reconstructions = {_.split(" ")[0]: xvi_conf[_] for _ in xvi_conf if _.endswith(".RECON")}
 
         # Now get the reconstructions which actually have an export
         # It is possible that there are no .RECON keys, in this case, we drop the extra metadata.
@@ -100,9 +92,7 @@ class XVIFile:
 
         scans = []
         for k in reconstructions:
-            scans.append(
-                XVIScan(reconstructions[k], exports[k], files_root=self.files_root)
-            )
+            scans.append(XVIScan(reconstructions[k], exports[k], files_root=self.files_root))
 
         # Sort on export time
         scans.sort(key=lambda x: x.datetime)

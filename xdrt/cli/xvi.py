@@ -48,17 +48,11 @@ def build_path(formatting, fraction_number, num_fractions, image_number, num_ima
 
     for part in path_builder:
         # Check the keys in part
-        keys_in_part = [
-            t[1] for t in string.Formatter().parse(part) if t[1] is not None
-        ]
+        keys_in_part = [t[1] for t in string.Formatter().parse(part) if t[1] is not None]
 
         if [_ for _ in keys_in_part if _ not in ["image", "fraction"]]:
-            raise ValueError(
-                f"{formatting} is malformed. Only 'image' and 'fraction' are supported as keys."
-            )
-        part = part.format(
-            **{k: v for k, v in path_dictionary.items() if k in keys_in_part}
-        )
+            raise ValueError(f"{formatting} is malformed. Only 'image' and 'fraction' are supported as keys.")
+        part = part.format(**{k: v for k, v in path_dictionary.items() if k in keys_in_part})
 
         output_path = output_path / part
     if not output_path.suffixes:
@@ -74,12 +68,8 @@ def main():
     )
     parser = argparse.ArgumentParser(parents=[base_parser], add_help=True)
     parser.add_argument("INPUT_XVI", type=pathlib.Path, help="Path to XVI file.")
-    parser.add_argument(
-        "FILES_ROOT", type=dir_path, help="Path to corresponding XDR files."
-    )
-    parser.add_argument(
-        "OUTPUT_DIRECTORY", type=dir_path, help="Directory to write output to."
-    )
+    parser.add_argument("FILES_ROOT", type=dir_path, help="Path to corresponding XDR files.")
+    parser.add_argument("OUTPUT_DIRECTORY", type=dir_path, help="Directory to write output to.")
     parser.add_argument(
         "--format",
         type=str,

@@ -20,13 +20,11 @@ try:
     EXT = {"win32": "dll", "linux": "so", "darwin": "dylib"}
     nki_decompress_lib = f"libnkidecompress.{EXT[sys.platform]}"
     nki_compression = ctypes.cdll.LoadLibrary(
-        Path(path.dirname(path.abspath(__file__))).parent / "lib" / nki_decompress_lib
+        Path(path.dirname(path.abspath(__file__))).parent / "lib" / nki_decompress_lib  # type: ignore
     )
     nki_decompression_available = True
 except (ImportError, OSError) as e:
-    warnings.warn(
-        f"Decompression library not available. Will not be able to read compressed XDR: {e}."
-    )
+    warnings.warn(f"Decompression library not available. Will not be able to read compressed XDR: {e}.")
 
 XDR_DTYPE_TO_PYTHON = {
     "xdr_real": "f4",
@@ -83,9 +81,7 @@ class XDRHeader:
                 raise IOError(f"`{required_key}` is required in XDR header.")
 
         if self.__header_dict["field"] not in ["uniform", "rectilinear"]:
-            raise NotImplementedError(
-                f"field {self.__header_dict['field']} not supported."
-            )
+            raise NotImplementedError(f"field {self.__header_dict['field']} not supported.")
 
         if self.__header_dict["field"] == "rectilinear":
             warnings.warn(
@@ -101,16 +97,12 @@ class XDRHeader:
         shape = []
         for dim_name in dim_names:
             if dim_name not in self.__header_dict:
-                raise IOError(
-                    f"`dimname` is required in XDR header when `ndim` is {self.ndim}."
-                )
+                raise IOError(f"`dimname` is required in XDR header when `ndim` is {self.ndim}.")
             shape.append(int(self.__header_dict[dim_name]))
 
         self.veclen = int(self.__header_dict["veclen"])
 
-        self.__shape = tuple(
-            shape
-        )  # Internally the original order is needed, array itself needs to be flipped.
+        self.__shape = tuple(shape)  # Internally the original order is needed, array itself needs to be flipped.
         self.shape = tuple(shape[::-1])
         self.size = np.prod(self.__shape)
 
@@ -136,9 +128,7 @@ class XDRHeader:
             p = self.__header_dict["xdr_filename"]
             if p != "":
                 p = f"{p}/"
-            self.external_data = (
-                f"{p}{self.__header_dict['variable 1 file'].split(' ')[0]}"
-            )
+            self.external_data = f"{p}{self.__header_dict['variable 1 file'].split(' ')[0]}"
 
     def parse_array_keys(self):
         array_keys = ["#$$ScanToSiddon", "#$$MatchToSiddon", "#$$PH"]
@@ -159,9 +149,7 @@ class XDRHeader:
                         f"Got {len(array)} and {len(self.shape[0])}."
                     )
                 if not self.ndim == 4:
-                    raise ValueError(
-                        f"Phase was defined in XDR, but dimension is {self.ndim}."
-                    )
+                    raise ValueError(f"Phase was defined in XDR, but dimension is {self.ndim}.")
 
                 phase_len = array.sum()
                 # Due to round-off errors, sometimes the phase does not completely add up to 1.
@@ -179,9 +167,7 @@ class XDRHeader:
     def spacing(self):
         # Spacing needs to be computed based on the image size and the matrix size.
         if not self.min_ext and self.max_ext:
-            raise ValueError(
-                "min_ext and max_ext need to be set before spacing can be computed."
-            )
+            raise ValueError("min_ext and max_ext need to be set before spacing can be computed.")
 
         diff = np.asarray(self.max_ext) - np.asarray(self.min_ext)
         if self.field == "uniform":
@@ -216,9 +202,7 @@ class XDRHeader:
             return self.affine[0:3, 0:3].flatten().tolist()
 
         # This happens when no ScanToSiddon is provided in the XDR header.
-        default_siddon_affine = np.array(
-            [[0.0, 0.0, 1.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]]
-        )
+        default_siddon_affine = np.array([[0.0, 0.0, 1.0], [-1.0, 0.0, 0.0], [0.0, -1.0, 0.0]])
         # Convert to ITK coordinates
         default_affine = np.matmul(SIDDON_TO_DICOM, default_siddon_affine)
 
@@ -305,9 +289,7 @@ def read(xdr_filename, stop_before_data=False):
             first_header_chars = "".join(initial_header)
             if first_header_chars != "# AVS":
                 file_handler.close()
-                raise RuntimeError(
-                    f"Header of XDR file should start with `# AVS`. Got {first_header_chars}."
-                )
+                raise RuntimeError(f"Header of XDR file should start with `# AVS`. Got {first_header_chars}.")
 
         header_counter += 1
 
@@ -320,9 +302,7 @@ def read(xdr_filename, stop_before_data=False):
             decoded_header.append("__#ERR#__")
 
     # Join characters to string and remove white space characters
-    header_lines = [
-        _ for _ in ("".join(decoded_header)).splitlines() if _ not in string.whitespace
-    ]
+    header_lines = [_ for _ in ("".join(decoded_header)).splitlines() if _ not in string.whitespace]
 
     # Split header lines around =
     header_dict = {"xdr_filename": xdr_filename}
@@ -380,21 +360,15 @@ def read(xdr_filename, stop_before_data=False):
             raw_data = np.fromfile(file_handler, dtype="uint8")
         else:
             raw_data = np.asarray(
-                np.fromfile(
-                    file_handler, dtype=f">{dtype}", count=header.size * header.veclen
-                ),
+                np.fromfile(file_handler, dtype=f">{dtype}", count=header.size * header.veclen),
                 order="F",
                 dtype=f"<{dtype}",
             )
 
     # AVSField standard defines the min_ext and max_ext based on final bytes.
     for _ in range(header.ndim):
-        header.min_ext.append(
-            np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0
-        )  # * 10. to convert to mm.
-        header.max_ext.append(
-            np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0
-        )  # * 10. to convert to mm.
+        header.min_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
+        header.max_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
     if file_handler.tell() != path.getsize(xdr_filename):
         file_handler.close()
         raise IOError(f"Unexpected extra bytes.")
@@ -431,21 +405,15 @@ def postprocess_xdr_image(
         logging.info(f"Computing temporal average: {temporal_average}.")
 
         if temporal_average not in ["mean", "weighted"]:
-            sys.exit(
-                f"xdr2img: error: --temporal-average must be either `mean` or `weighted`."
-            )
+            sys.exit(f"xdr2img: error: --temporal-average must be either `mean` or `weighted`.")
 
         if xdr_image.header.ndim != 4:
-            sys.exit(
-                f"xdr2img: error: --temporal-average can only be used with 4D images."
-            )
+            sys.exit(f"xdr2img: error: --temporal-average can only be used with 4D images.")
 
         weights = 1.0
         if temporal_average == "weighted":
             if not hasattr(xdr_image.header, "phase"):
-                logging.warning(
-                    "Phase is not available. Temporal average will be mean."
-                )
+                logging.warning("Phase is not available. Temporal average will be mean.")
             else:
                 weights = np.asarray(xdr_image.header.phase)
 
@@ -463,9 +431,7 @@ def postprocess_xdr_image(
     if cast:
         logging.info(f"Casting to: {cast}.")
         if cast not in list(DATATYPES.keys()):
-            sys.exit(
-                f"xdr2img: error: Expected casting type to be one of {list(DATATYPES.keys())}. Got {cast}."
-            )
+            sys.exit(f"xdr2img: error: Expected casting type to be one of {list(DATATYPES.keys())}. Got {cast}.")
         xdr_image.data = xdr_image.data.astype(DATATYPES[cast])
 
     return xdr_image

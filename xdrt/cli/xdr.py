@@ -15,9 +15,7 @@ from xdrt.cli.utils import (
 
 def main():
     """Console script for xdr2img."""
-    base_parser = BaseArgs(
-        "xdr2img converts XDR images to other medical imaging formats."
-    )
+    base_parser = BaseArgs("xdr2img converts XDR images to other medical imaging formats.")
     parser = argparse.ArgumentParser(parents=[base_parser], add_help=True)
     parser.add_argument("INPUT_XDR", type=pathlib.Path, help="Path to XDR file.")
     parser.add_argument(

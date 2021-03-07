@@ -16,9 +16,7 @@ def setup_logging(verbosity_level):
     level = levels[min(len(levels) - 1, verbosity_level)]
 
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
-    logging.warning(
-        "Beta software. In case you run into issues report at https://github.com/NKI-AI/xdrt/."
-    )
+    logging.warning("Beta software. In case you run into issues report at https://github.com/NKI-AI/xdrt/.")
 
 
 def dir_path(path):
@@ -79,26 +77,18 @@ class BaseArgs(argparse.ArgumentParser):
             "either `weighted` to weight according to phase or `mean` for a normal average. "
             "Returns a float image.",
         )
-        self.add_argument(
-            "--slope", type=float, help="Apply slope to the output image."
-        )
-        self.add_argument(
-            "--intercept", type=float, help="Apply intercept to the output image."
-        )
+        self.add_argument("--slope", type=float, help="Apply slope to the output image.")
+        self.add_argument("--intercept", type=float, help="Apply intercept to the output image.")
         self.add_argument(
             "--cast",
             type=str,
             help=f"Cast the output. One of {', '.join(list(DATATYPES.keys()))}.",
         )
-        self.add_argument(
-            "-v", "--verbose", action="count", help="Verbosity level", default=0
-        )
+        self.add_argument("-v", "--verbose", action="count", help="Verbosity level", default=0)
         self.set_defaults(**overrides)
 
 
-def read_xdr_as_simpleitk(
-    input_xdr, temporal_average, slope, intercept, cast, no_header, original_orientation
-):
+def read_xdr_as_simpleitk(input_xdr, temporal_average, slope, intercept, cast, no_header, original_orientation):
     try:
         xdr_image = xdr_reader.read(input_xdr, stop_before_data=False)
     except RuntimeError as e:
@@ -124,9 +114,7 @@ def read_xdr_as_simpleitk(
     return sitk_image
 
 
-def write_simpleitk_image(
-    sitk_image, output_image, no_compression=False, extra_metadata=None
-):
+def write_simpleitk_image(sitk_image, output_image, no_compression=False, extra_metadata=None):
     metadata = {k: sitk_image.GetMetaData(k) for k in sitk_image.GetMetaDataKeys()}
     for key, value in metadata.items():
         logging.info(f"{key}: {value}")
