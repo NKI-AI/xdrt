@@ -84,7 +84,7 @@ class XDRHeader:
 
         if self.__header_dict["field"] == "rectilinear":
             warnings.warn(
-                f"field is `rectilinear`, this is only partly supported and currently handled as `uniform`. "
+                "field is `rectilinear`, this is only partly supported and currently handled as `uniform`. "
                 f"Likely this does not work. Create an issue at https://github.com/NKI-AI/xdrt/issues "
                 f"if your application requires this."
             )
@@ -179,7 +179,7 @@ class XDRHeader:
                 )
             spacing = diff / np.asarray(self.__shape) - 1
             warnings.warn(
-                f"Spacing for rectilinear fields are untested, and will output the same spacing as uniform fields."
+                "Spacing for rectilinear fields are untested, and will output the same spacing as uniform fields."
             )
 
         return np.round(spacing, 3)  # micrometer resolution
@@ -233,7 +233,7 @@ class XDRHeader:
         return new_affine
 
     def __repr__(self):
-        out_str = f"XDRHeader("
+        out_str = "XDRHeader("
         for k, v in self.__dict__.items():
             if k == "_spacing":
                 k = "spacing"
@@ -326,7 +326,7 @@ def read(xdr_filename, stop_before_data=False):
     # TODO: No veclen in compression yet
     if header.compression > 0:
         if not nki_decompression_available:
-            raise ValueError(f"Decompression library not compiled.")
+            raise ValueError("Decompression library not compiled.")
 
         # Must calculate how many bytes of compressed data there are.
         image_data_offset = file_handler.tell()
@@ -371,7 +371,7 @@ def read(xdr_filename, stop_before_data=False):
         header.max_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
     if file_handler.tell() != path.getsize(xdr_filename):
         file_handler.close()
-        raise IOError(f"Unexpected extra bytes.")
+        raise IOError("Unexpected extra bytes.")
 
     file_handler.close()
 
@@ -405,10 +405,10 @@ def postprocess_xdr_image(
         logging.info(f"Computing temporal average: {temporal_average}.")
 
         if temporal_average not in ["mean", "weighted"]:
-            sys.exit(f"xdr2img: error: --temporal-average must be either `mean` or `weighted`.")
+            sys.exit("xdr2img: error: --temporal-average must be either `mean` or `weighted`.")
 
         if xdr_image.header.ndim != 4:
-            sys.exit(f"xdr2img: error: --temporal-average can only be used with 4D images.")
+            sys.exit("xdr2img: error: --temporal-average can only be used with 4D images.")
 
         weights = 1.0
         if temporal_average == "weighted":
@@ -468,7 +468,7 @@ def read_as_simpleitk(xdr_image, lps_orientation=True, save_header=False):
         for curr_data in data:
             images.append(_create_simpleitk_image(curr_data, header))
     else:
-        raise NotImplementedError(f"Currently on 3D and 4D XDR is implemented.")
+        raise NotImplementedError("Currently on 3D and 4D XDR is implemented.")
 
     if lps_orientation:
         images = [_change_orientation(curr_image) for curr_image in images]
