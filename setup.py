@@ -29,7 +29,7 @@ with open("README.md") as readme_file:
 with open("HISTORY.md") as history_file:
     history = history_file.read()
 
-requirements = ["numpy>=1.18"]
+requirements: List[str] = []
 
 setup_requirements = [
     "pytest-runner",
