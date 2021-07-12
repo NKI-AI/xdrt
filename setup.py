@@ -1,9 +1,8 @@
 #!/usr/bin/env python
+# coding=utf-8
 
 """The setup script."""
 import ast
-from typing import List
-
 
 with open("xdrt/__init__.py") as f:
     for line in f:
@@ -11,33 +10,18 @@ with open("xdrt/__init__.py") as f:
             version = ast.parse(line).body[0].value.s  # type: ignore
             break
 
-from setuptools import find_packages, Extension, setup
-
 import os
-import re
-import sys
 import platform
+import re
 import subprocess
-
+import sys
 from distutils.version import LooseVersion
-from setuptools.command.build_ext import build_ext
 
+from setuptools import Extension, find_packages, setup
+from setuptools.command.build_ext import build_ext
 
 with open("README.md") as readme_file:
     readme = readme_file.read()
-
-with open("HISTORY.md") as history_file:
-    history = history_file.read()
-
-requirements: List[str] = []
-
-setup_requirements = [
-    "pytest-runner",
-]
-
-test_requirements = [
-    "pytest>=3",
-]
 
 
 class CMakeExtension(Extension):
@@ -114,18 +98,28 @@ setup(
             "xvi2img=xdrt.cli.xvi:main",
         ],
     },
-    description="XDRT (XDR Toolkit) is a python toolkit to work with the XDR file format.",
-    install_requires=requirements,
+    description="XDRT (XDR Toolkit) is a python toolkit to work with the Elekta XDR and XVI file formats.",
+    install_requires=["numpy>=0.19", "SimpleITK>=2.0"],
     license="Apache Software License 2.0 for the python code, and custom license for the external decoding library.",
-    long_description=readme + "\n\n" + history,
+    long_description=readme,
     long_description_content_type="text/markdown",
     include_package_data=True,
     keywords="xdrt",
     name="xdrt",
     packages=find_packages(include=["xdrt", "xdrt.*"]),
-    setup_requires=setup_requirements,
     test_suite="tests",
-    tests_require=test_requirements,
+    extras_require={
+        "dev": [
+            "pytest",
+            "pytest-mock",
+            "sphinx_copybutton",
+            "numpydoc",
+            "myst_parser",
+            "sphinx-book-theme",
+            "pylint",
+            "pydantic",
+        ],
+    },
     url="https://github.com/NKI-AI/xdrt",
     version=version,
     zip_safe=False,

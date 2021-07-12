@@ -1,12 +1,11 @@
 # coding=utf-8
 # Copyright (c) Jonas Teuwen
 import configparser
-import pathlib
 import logging
+import pathlib
+from typing import Dict, List, Optional
 
 from xdrt.utils import parse_xvi_datetime, parse_xvi_url
-from typing import Optional, Dict, List
-
 
 RELEVANT_RECONSTRUCTION_TAGS = [
     "acqpars",

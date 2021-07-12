@@ -1,12 +1,13 @@
 # coding=utf-8
 # Copyright (c) Jonas Teuwen
 import argparse
-import pathlib
 import logging
+import pathlib
 import sys
-import SimpleITK as sitk
-import xdrt
 
+import SimpleITK as sitk
+
+import xdrt
 from xdrt import xdr_reader
 from xdrt.utils import DATATYPES
 
