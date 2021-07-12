@@ -1,10 +1,9 @@
 #!/usr/bin/env python
+# coding=utf-8
 
 """Tests for `xdr` package."""
 
 import pytest
-
-
 from xdr import xdr_reader
 
 

@@ -76,7 +76,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
   { case 1:
       src += 8;				// mode 1 only has 8 bytes header: iOrgSize and iMode
       end  = src + size - 3;		// for overflow check if we are close to end of input buffer
-  
+
       *dest = *(short int *)src;
       src += 2;
       npixels--;
@@ -91,10 +91,10 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
           else if ((val&0xff)==0x80)	    mode = 2;	// run length encoding
           else				    mode = 2;
 
-          if (src+mode > end+3) 
+          if (src+mode > end+3)
             return 0;			// safety: overflow input data
         }
-    
+
         val = *src;
 
         if (val >= -64 && val <= 63)	// 7 bit difference
@@ -111,7 +111,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
         { mode = ((unsigned char *)src)[1];
           npixels -= mode-1;
           if (npixels<=0) return 0;	// safety: overflow output data
-          do 
+          do
           { dest[1] = dest[0];
             dest++;
           }
@@ -134,16 +134,16 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
       save = src;
       end  = src + pHeader->iCompressedSize - 3;
 
-      if (end > src + size - 3) 
+      if (end > src + size - 3)
         end = src + size - 3;		// may occur if pHeader is corrupted
 
       *dest = val = *(short int *)src;
       iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)val] ^ ((iCRC2 >> 8));
       iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)(val>>8)] ^ ((iCRC2 >> 8));
       src+=2;
-    
+
       npixels--;
-    
+
       do
       { if (src > end) 			// check whether the last few messages fit in input buffer
         { if (src<end+3) val = *src;
@@ -154,12 +154,12 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
           else if ((val&0xff)==0x80)	    mode = 2;	// run length encoding
           else				    mode = 2;
 
-          if (src+mode > end+3) 
+          if (src+mode > end+3)
             break;			// safety: overflow input data
         }
 
         val = *src;
-    
+
         if (val >= -64 && val <= 63)	// 7 bits difference
         { dest[1] = val = dest[0] + val;
           iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)val] ^ ((iCRC2 >> 8));
@@ -169,7 +169,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
         }
         else if (val==0x7f)		// 16 bit value
         { dest[1] = val = ((int)(((unsigned char *)src)[1])<<8) + ((unsigned char*)src)[2];
-    
+
           iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)val] ^ ((iCRC2 >> 8));
           iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)(val>>8)] ^ ((iCRC2 >> 8));
           dest++;
@@ -179,7 +179,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
         { mode = ((unsigned char *)src)[1];
           npixels -= mode-1;
           if (npixels<=0) break;	// safety: overflow output data
-          do 
+          do
           { dest[1] = val = dest[0];
             iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)val] ^ ((iCRC2 >> 8));
             iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)(val>>8)] ^ ((iCRC2 >> 8));
@@ -198,7 +198,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
         }
       }
       while (--npixels);
-    
+
       if (iCRC2 != pHeader->iOrgCRC)	// if error in output CRC:
       { src = save;			// check input CRC
         while (src < end)
@@ -211,8 +211,8 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
             retvalue=0;
         }
         else
-        { //OperatorConsole.printf("NKI private decompression: internal error\n"); 
-          retvalue=0; 
+        { //OperatorConsole.printf("NKI private decompression: internal error\n");
+          retvalue=0;
         }
       }
 
@@ -221,7 +221,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
     case 3:
       src += 8;				// mode 3 only has 8 bytes header: iOrgSize and iMode
       end  = src + size - 3;		// for overflow check if we are close to end of input buffer
-  
+
       *dest = *(short int *)src;
       src += 2;
       npixels--;
@@ -237,10 +237,10 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
           else if ((val&0xff)==0xC0)	    mode = 2;	// 4 bit encoding
           else				    mode = 2;
 
-          if (src+mode > end+3) 
+          if (src+mode > end+3)
             return 0;			// safety: overflow input data
         }
-    
+
         val = *src;
 
         if (val >= -63 && val <= 63)	// 7 bit difference
@@ -257,7 +257,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
         { mode = ((unsigned char *)src)[1];
           npixels -= mode-1;
           if (npixels<=0) return 0;	// safety: overflow output data
-          do 
+          do
           { dest[1] = dest[0];
             dest++;
           }
@@ -270,7 +270,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
           mode/=2;
           src+=2;
           if (npixels<=0) return 0;	// safety: overflow output data
-          do 
+          do
           { val = *src++;
             dest[1] = dest[0] + (val>>4);
             dest++;
@@ -295,8 +295,8 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
       src += sizeof(NKI_MODE2);
       save = src;
       end  = src + pHeader->iCompressedSize - 3;
-  
-      if (end > src + size - 3) 
+
+      if (end > src + size - 3)
         end = src + size - 3;		// may occur if pHeader is corrupted
 
       *dest = val = *(short int *)src;
@@ -316,10 +316,10 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
           else if ((val&0xff)==0xC0)	    mode = 2;	// 4 bit encoding
           else				    mode = 2;
 
-          if (src+mode > end+3) 
+          if (src+mode > end+3)
             return 0;			// safety: overflow input data
         }
-    
+
         val = *src;
 
         if (val >= -63 && val <= 63)	// 7 bit difference
@@ -340,7 +340,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
         { mode = ((unsigned char *)src)[1];
           npixels -= mode-1;
           if (npixels<=0) return 0;	// safety: overflow output data
-          do 
+          do
           { dest[1] = val = dest[0];
             iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)val] ^ ((iCRC2 >> 8));
             iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)(val>>8)] ^ ((iCRC2 >> 8));
@@ -355,7 +355,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
           mode/=2;
           src+=2;
           if (npixels<=0) return 0;	// safety: overflow output data
-          do 
+          do
           { val = *src++;
             dest[1] = j = dest[0] + (val>>4);
             iCRC2 = CRC32_table[(unsigned char)iCRC2 ^ (unsigned char)j] ^ ((iCRC2 >> 8));
@@ -386,7 +386,7 @@ int nki_private_decompress(short int *dest, signed char *src, int size)
       break;
 
     default:
-      //OperatorConsole.printf("NKI private decompression: unsupported mode\n"); 
+      //OperatorConsole.printf("NKI private decompression: unsupported mode\n");
       return 0;
   }
 

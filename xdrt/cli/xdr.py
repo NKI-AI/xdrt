@@ -1,16 +1,11 @@
 # coding=utf-8
 # Copyright (c) Jonas Teuwen
 import argparse
-import sys
-import pathlib
 import logging
+import pathlib
+import sys
 
-from xdrt.cli.utils import (
-    BaseArgs,
-    setup_logging,
-    read_xdr_as_simpleitk,
-    write_simpleitk_image,
-)
+from xdrt.cli.utils import BaseArgs, read_xdr_as_simpleitk, setup_logging, write_simpleitk_image
 
 
 def main():

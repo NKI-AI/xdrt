@@ -1,7 +1,6 @@
 # XDRT (XDR Tools)
 
 [![pypi](https://img.shields.io/pypi/v/xdrt.svg)](https://pypi.python.org/pypi/xdrt)
-[![rtd](https://readthedocs.org/projects/xdrt/badge/?version=latest)](https://xdrt.readthedocs.io/en/latest/?badge=latest)
 
 XDRT is a python toolkit to work with the XDR file format used e.g. by Elekta to store cone-beam CT images and as reconstructed by XVI.
 The reading of `.xvi` files is also supported, allowing to find the map the XDR file to the moment of acquistion
@@ -10,7 +9,7 @@ The reading of `.xvi` files is also supported, allowing to find the map the XDR 
 
 * Free software: Apache Software License 2.0. Decompression library is public domain, but has a different
 [license](xdrt/lib/nki_decompression/LICENSE).
-* Documentation: https://xdrt.readthedocs.io.
+* Documentation: https://docs.aiforoncology.nl/xdrt/.
 
 
 ## Features
