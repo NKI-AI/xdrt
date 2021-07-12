@@ -3,7 +3,7 @@ include LICENSE
 include README.md
 include CMakeLists.txt
 
-recursive-include nki_decompression
+recursive-include xdrt/lib/nki_decompression *
 recursive-include tests *
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
