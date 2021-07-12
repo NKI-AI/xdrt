@@ -11,7 +11,6 @@ Welcome to XDR Toolkit's documentation!
    modules
    contributing
    authors
-   history
 
 Indices and tables
 ==================

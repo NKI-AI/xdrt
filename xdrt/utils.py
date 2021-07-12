@@ -2,6 +2,7 @@
 # Copyright (c) Jonas Teuwen
 import re
 from datetime import datetime
+
 import numpy as np
 
 DATATYPES = {

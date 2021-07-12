@@ -1,18 +1,17 @@
 # coding=utf-8
 # Copyright (c) Jonas Teuwen
-import numpy as np
-import sys
-import string
-import warnings
 import ctypes
-import SimpleITK as sitk
 import logging
-
+import string
+import sys
+import warnings
 from os import path
 from pathlib import Path
 
-from xdrt.utils import camel_to_snake, make_integer, DATATYPES
+import numpy as np
+import SimpleITK as sitk
 
+from xdrt.utils import DATATYPES, camel_to_snake, make_integer
 
 nki_decompression_available = False
 try:

@@ -1,2 +1,2 @@
-SimpleITK==2.0.1
 numpy==1.19.1
+SimpleITK==2.0.1
