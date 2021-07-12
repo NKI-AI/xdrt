@@ -31,14 +31,6 @@ with open("HISTORY.md") as history_file:
 
 requirements: List[str] = []
 
-setup_requirements = [
-    "pytest-runner",
-]
-
-test_requirements = [
-    "pytest>=3",
-]
-
 
 class CMakeExtension(Extension):
     # This is from: https://www.benjack.io/2017/06/12/python-cpp-tests.html
@@ -114,8 +106,8 @@ setup(
             "xvi2img=xdrt.cli.xvi:main",
         ],
     },
-    description="XDRT (XDR Toolkit) is a python toolkit to work with the XDR file format.",
-    install_requires=requirements,
+    description="XDRT (XDR Toolkit) is a python toolkit to work with the Elekta XDR and XVI file formats.",
+    install_requires=["numpy>=0.19", "SimpleITK>=2.0"],
     license="Apache Software License 2.0 for the python code, and custom license for the external decoding library.",
     long_description=readme + "\n\n" + history,
     long_description_content_type="text/markdown",
@@ -123,9 +115,9 @@ setup(
     keywords="xdrt",
     name="xdrt",
     packages=find_packages(include=["xdrt", "xdrt.*"]),
-    setup_requires=setup_requirements,
+    setup_requires=["pytest-runner"],
     test_suite="tests",
-    tests_require=test_requirements,
+    tests_require=["pytest>=3"],
     url="https://github.com/NKI-AI/xdrt",
     version=version,
     zip_safe=False,
