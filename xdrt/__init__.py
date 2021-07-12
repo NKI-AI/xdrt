@@ -4,6 +4,6 @@
 
 __author__ = """Jonas Teuwen"""
 __email__ = "j.teuwen@nki.nl"
-__version__ = "0.2.1-dev0"
+__version__ = "0.2.1-dev1"
 
 from .xdr_reader import read, read_as_simpleitk
