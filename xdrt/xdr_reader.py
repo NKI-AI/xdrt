@@ -15,11 +15,17 @@ from xdrt.utils import DATATYPES, camel_to_snake, make_integer
 
 nki_decompression_available = False
 try:
-    EXT = {"win32": "dll", "linux": "so", "darwin": "dylib"}
-    nki_decompress_lib = f"libnkidecompress.{EXT[sys.platform]}"
-    nki_compression = ctypes.cdll.LoadLibrary(
-        Path(path.dirname(path.abspath(__file__))).parent / "lib" / nki_decompress_lib  # type: ignore
-    )
+    EXT = {"linux": "so", "darwin": "dylib"}
+    nki_decompress_lib = None
+    if sys.platform == "win32":
+        nki_decompress_lib = Path(path.dirname(path.abspath(__file__))) / "lib" / "nkidecompress.dll"
+    elif sys.platform in EXT:
+        nki_decompress_lib = (
+            Path(path.dirname(path.abspath(__file__))) / "lib" / f"libnkidecompress.{EXT[sys.platform]}"
+        )
+    else:
+        raise RuntimeError(f"Platform {sys.platform} not supported.")
+    nki_compression = ctypes.cdll.LoadLibrary(str(nki_decompress_lib))
     nki_decompression_available = True
 except (ImportError, OSError) as e:
     warnings.warn(f"Decompression library not available. Will not be able to read compressed XDR: {e}.")
