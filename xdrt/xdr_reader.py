@@ -171,7 +171,6 @@ class XDRHeader:
         if self.scan_to_siddon is None:
             raise RuntimeError(f"#$$ScanToSiddon could not be parsed or found in XDR header.")
 
-
     @property
     def spacing(self):
         # Spacing needs to be computed based on the image size and the matrix size.

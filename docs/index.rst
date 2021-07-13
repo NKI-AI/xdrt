@@ -10,7 +10,6 @@ Welcome to XDR Toolkit's documentation!
    usage
    modules
    contributing
-   authors
 
 Indices and tables
 ==================
