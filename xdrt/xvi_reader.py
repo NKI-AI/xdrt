@@ -186,6 +186,8 @@ class XVIScan:
         self.reconstruction = pathlib.Path(reconstruction_path)
         self.exported_scan_id = export["exportedscanid"]
 
+        self.protocol = None
+
         for tag in RELEVANT_RECONSTRUCTION_TAGS:
             if tag in reconstruction:
                 setattr(self, tag, reconstruction[tag])

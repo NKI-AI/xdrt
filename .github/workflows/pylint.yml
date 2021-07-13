@@ -21,4 +21,4 @@ jobs:
         pip install -e .
     - name: Analysing the code with pylint
       run: |
-        pylint dlup --errors-only
+        pylint xdrt --errors-only

@@ -118,6 +118,7 @@ class XDRHeader:
         self.dtype = XDR_DTYPE_TO_PYTHON[self.original_dtype]
 
         # Parse the array keys.
+        self.scan_to_siddon = None  # Placeholder
         self.parse_array_keys()
 
         for key in XDR_METADATA_KEYS:
@@ -167,6 +168,9 @@ class XDRHeader:
                 self.phase = array
             else:
                 setattr(self, camel_to_snake(array_key[3:]), array.reshape((4, 4)))
+        if self.scan_to_siddon is None:
+            raise RuntimeError(f"#$$ScanToSiddon could not be parsed or found in XDR header.")
+
 
     @property
     def spacing(self):
