@@ -418,7 +418,7 @@ def postprocess_xdr_image(
         if xdr_image.header.ndim != 4:
             sys.exit("xdr2img: error: --temporal-average can only be used with 4D images.")
 
-        weights = 1.0
+        weights = np.asarray([1.0] * xdr_image.data.shape[0])
         if temporal_average == "weighted":
             if not hasattr(xdr_image.header, "phase"):
                 logging.warning("Phase is not available. Temporal average will be mean.")
