@@ -62,7 +62,10 @@ class CMakeBuild(build_ext):
         build_args = ["--config", cfg]
 
         if platform.system() == "Windows":
-            cmake_args += ["-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)]
+            cmake_args += [
+                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
+                "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
+            ]
             if sys.maxsize > 2 ** 32:
                 cmake_args += ["-A", "x64"]
             build_args += ["--", "/m"]
@@ -123,6 +126,6 @@ setup(
     url="https://github.com/NKI-AI/xdrt",
     version=version,
     zip_safe=False,
-    ext_modules=[CMakeExtension("lib/nki_decompression")],
+    ext_modules=[CMakeExtension("xdrt/lib/nki_decompression")],
     cmdclass=dict(build_ext=CMakeBuild),
 )
