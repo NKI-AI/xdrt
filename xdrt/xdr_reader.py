@@ -242,17 +242,17 @@ class XDRHeader:
 
     def __repr__(self):
         out_str = "XDRHeader("
-        for k, v in self.__dict__.items():
-            if k == "_spacing":
-                k = "spacing"
-                v = self.spacing
+        for key, value in self.__dict__.items():
+            if key == "_spacing":
+                key = "spacing"
+                value = self.spacing
 
-            if k.startswith("_XDRHeader"):
+            if key.startswith("_XDRHeader"):
                 continue
-            if isinstance(v, np.ndarray):
-                v = f"np.ndarray(shape={v.shape}, dtype={v.dtype})"
+            if isinstance(value, np.ndarray):
+                value = f"np.ndarray(shape={value.shape}, dtype={value.dtype})"
 
-            out_str += f"{k}={v}, "
+            out_str += f"{key}={value}, "
         out_str = out_str[:-2]
         out_str += ")"
         return out_str

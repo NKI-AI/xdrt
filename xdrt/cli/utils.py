@@ -4,6 +4,7 @@ import argparse
 import logging
 import pathlib
 import sys
+import time
 
 import SimpleITK as sitk
 
@@ -139,3 +140,46 @@ def write_simpleitk_image(sitk_image, output_image, no_compression=False, extra_
             sys.exit(f"Error when writing {output_image}: {the_error}.")
         else:
             sys.exit(f"Unknown exception when writing {output_image}: {e}")
+
+
+def write_dicom_image(sitk_image, output_folder, metadata, no_compression=False):
+    # Inspired by: https://simpleitk.readthedocs.io/en/master/link_DicomSeriesFromArray_docs.html
+    if not no_compression:
+        logging.info("Writing with compression.")
+
+    writer = sitk.ImageFileWriter()
+    # Use the study/series/frame of reference information given in the meta-data
+    # dictionary and not the automatically generated information from the file IO
+    writer.KeepOriginalImageUIDOn()
+
+    direction = sitk_image.GetDirection()
+    _direction = (direction[0], direction[3], direction[6], direction[1], direction[4], direction[7])
+    max_length = len(str(sitk_image.GetDepth()))
+
+    for slice_idx in range(sitk_image.GetDepth()):
+        image_slice = sitk_image[:, :, slice_idx]
+        # Set all common keys
+        for key, value in metadata.items():
+            image_slice.SetMetaData(key, str(value))
+
+        # (0020, 0032) image position patient determines the 3D spacing between
+        # slices.
+        # Image Position (Patient)
+        image_slice.SetMetaData(
+            "0020|0032", "\\".join(map(str, sitk_image.TransformIndexToPhysicalPoint((0, 0, slice_idx))))
+        )
+        # Instance Number
+        image_slice.SetMetaData("0020,0013", str(slice_idx))
+        # Instance Creation Date
+        image_slice.SetMetaData("0008|0012", time.strftime("%Y%m%d"))
+        # Instance Creation Time
+        image_slice.SetMetaData("0008|0013", time.strftime("%H%M%S"))
+        image_slice.SetMetaData("0020|0037", "\\".join(map(str, _direction))),  # Image Orientation
+
+        # Write to the output directory and add the extension dcm, to force writing in DICOM format.
+        writer.SetFileName(str(output_folder / f"{str(slice_idx).zfill(max_length)}.dcm"))
+        if not no_compression:
+            writer.UseCompressionOn()
+        writer.Execute(image_slice)
+
+        logging.info(f"Wrote {sitk_image.GetDepth()} dicom files to {output_folder}")

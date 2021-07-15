@@ -98,11 +98,16 @@ setup(
     entry_points={
         "console_scripts": [
             "xdr2img=xdrt.cli.xdr:main",
-            "xvi2img=xdrt.cli.xvi:main",
+            "xvi2img=xdrt.cli.xvi:write_to_image",
+            "xvi2dcm=xdrt.cli.xvi:write_to_dicom",
         ],
     },
     description="XDRT (XDR Toolkit) is a python toolkit to work with the Elekta XDR and XVI file formats.",
-    install_requires=["numpy>=0.19", "SimpleITK>=2.0"],
+    install_requires=[
+        "numpy>=0.19",
+        "SimpleITK>=2.0",
+        "pydicom @ git+https://git@github.com/pydicom/pydicom.git#egg=pydicom",
+    ],
     license="Apache Software License 2.0 for the python code, and custom license for the external decoding library.",
     long_description=readme,
     long_description_content_type="text/markdown",
