@@ -6,8 +6,7 @@
 [![Black](https://github.com/NKI-AI/xdrt/actions/workflows/black.yml/badge.svg)](https://github.com/NKI-AI/xdrt/actions/workflows/black.yml)
 
 XDRT is a python toolkit to work with the XDR file format used e.g. by Elekta to store cone-beam CT images and as reconstructed by XVI.
-The reading of `.xvi` files is also supported, allowing to find the map the XDR file to the moment of acquistion
-(which fraction, what type of scan).
+The reading of complete XVI reconstruction folders is also supported, exporting to either an ITK supported format or DICOM, recovering metadata from the XVI files.
 
 
 * Free software: Apache Software License 2.0. Decompression library is public domain, but has a different
@@ -20,12 +19,13 @@ The reading of `.xvi` files is also supported, allowing to find the map the XDR 
 * Utilities to read (compressed) 3D and 4D XDR files in python.
 * Ability to read XVI files and link planning scans with cone-beam CT scans.
 * `xdr2img` command line utility to convert xdr images to ITK supported formats.
-* `xvi2img` command line utility converts all fractions to ITK supported formats.
+* `xvi2img` command line utility converts a fraction (reconstruction) to ITK supported formats.
+* `xvi2dcm` command line utility converts a fraction (reconstruction) to dicom.
 
 ## How to use
 The package needs to compile the decompression library, which can be done with:
 `python setup.py install` or with `pip install git+https://github.com/NKI-AI/xdrt.git`
-or from PyPi using `pip install xdrt`. Detailed installation instructions are available in 
+or from PyPi using `pip install xdrt`. Detailed installation instructions are available in
 the [documentation](https://docs.aiforoncology.nl/xdrt/installation.html).
 
 * The command line program `xdr2img image.xdr image.nrrd` converts images from XDR
@@ -42,6 +42,6 @@ The following is not yet supported:
 
 * Origin is not yet always properly parsed.
 * Only `uniform` grids are currently supported.
-* Protocol is not detected from the XVI file (e.g. 4D-CBCT + SBRT). Images in fraction are output consecutively.
+
 
 Create an [issue](https://github.com/NKI-AI/xdrt/issues) if this is an urgent issue for you.

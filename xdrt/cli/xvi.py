@@ -2,139 +2,139 @@
 # Copyright (c) Jonas Teuwen
 import argparse
 import logging
-import math
 import pathlib
-import string
 import sys
+from datetime import datetime
 
-from xdrt.cli.utils import BaseArgs, dir_path, read_xdr_as_simpleitk, setup_logging, write_simpleitk_image
-from xdrt.xvi_reader import XVIFile
-
-XVI_ACQN_TAGS = [
-    "datetime",
-    "version",
-    "fraction_number",
-    "image_number_in_fraction",
-    "acqpars",
-    "protocol",
-    "airvaluemeasured",
-    "watervaluemeasured",
-    "tubema",
-    "tubekv",
-    "tubekvlength",
-    "fov",
-]
+from xdrt.cli.utils import (
+    BaseArgs,
+    dir_path,
+    read_xdr_as_simpleitk,
+    setup_logging,
+    write_dicom_image,
+    write_simpleitk_image,
+)
+from xdrt.xvi_reader import XVIReconstruction
 
 
-def build_path(formatting, fraction_number, num_fractions, image_number, num_images):
-    length_of_fractions = int(math.log10(num_fractions)) + 1
-    length_of_images = int(math.log10(num_images)) + 1
+def read_xvi(input_folder) -> XVIReconstruction:
+    try:
+        xvi_reconstruction = XVIReconstruction(input_folder)
+    except RuntimeError as e:
+        logging.error(f"Loading XVI folder failed: {e}")
+        sys.exit()
 
-    path_dictionary = {
-        "image": f"{str(image_number).zfill(length_of_images)}",
-        "fraction": f"{str(fraction_number).zfill(length_of_fractions)}",
-    }
-
-    # Parse per part in string
-    path_builder = formatting.split("/")
-    prefix = "/" if formatting[0] == "/" else ""
-    output_path = pathlib.Path(prefix)
-
-    for part in path_builder:
-        # Check the keys in part
-        keys_in_part = [t[1] for t in string.Formatter().parse(part) if t[1] is not None]
-
-        if [_ for _ in keys_in_part if _ not in ["image", "fraction"]]:
-            raise ValueError(f"{formatting} is malformed. Only 'image' and 'fraction' are supported as keys.")
-        part = part.format(**{k: v for k, v in path_dictionary.items() if k in keys_in_part})
-
-        output_path = output_path / part
-    if not output_path.suffixes:
-        raise ValueError(f"{formatting} is malformed. Requires an extension.")
-    return output_path
+    return xvi_reconstruction
 
 
-def main():
-    """Console script for xdr2img."""
+def write_to_dicom():
+    """Console script for xdr2dcm."""
     base_parser = BaseArgs(
-        "xvi2img reads .xvi files, connects these to the underlying .XDR files, and writes these to a directory "
-        " in another medical imaging format."
+        "xvi2dcm reads folders, connects these to the underlying XDR files, and writes these to a directory "
+        " in dicom."
     )
+
     parser = argparse.ArgumentParser(parents=[base_parser], add_help=True)
-    parser.add_argument("INPUT_XVI", type=pathlib.Path, help="Path to XVI file.")
-    parser.add_argument("FILES_ROOT", type=dir_path, help="Path to corresponding XDR files.")
-    parser.add_argument("OUTPUT_DIRECTORY", type=dir_path, help="Directory to write output to.")
-    parser.add_argument(
-        "--format",
-        type=str,
-        help="Formatting of the output directory structure. "
-        "Supported keywords are 'fraction' and 'image' "
-        "which denote the respective fraction and number, starting from 0.",
-        default="fraction_{fraction}/CBCT_{image}.nrrd",
-    )
+    parser.add_argument("INPUT_XVI", type=pathlib.Path, help="Path to XVI reconstruction folder.")
+    parser.add_argument("OUTPUT_DIRECTORY", type=dir_path, help="Path to write output to.")
 
     args = parser.parse_args()
     setup_logging(args.verbose)
     logging.info(f"Reading {args.INPUT_XVI}...")
+    xvi_reconstruction = read_xvi(args.INPUT_XVI)
 
-    try:
-        xvi_file = XVIFile(xvi_filename=args.INPUT_XVI, files_root=args.FILES_ROOT)
-    except RuntimeError as e:
-        logging.error(f"Loading XVI file failed: {e}")
-        sys.exit()
-    except FileNotFoundError as e:
-        logging.error(f"Could not find file: {e}")
-        sys.exit()
+    filename = xvi_reconstruction.scan.filename
+    patient = xvi_reconstruction.patient
 
-    num_fractions = xvi_file.num_fractions
-    num_scans = xvi_file.num_scans
-    logging.info(f"Found {num_fractions} fractions and a total of {num_scans} scans.")
+    # TODO: This is not a proper encoding for all names in different character sets
+    patient_name = f"{patient.last_name.strip()}^{patient.first_name.strip()}"
+    modification_time = xvi_reconstruction.scan.date_time.strftime("%H%M%S")
+    modification_date = xvi_reconstruction.scan.date_time.strftime("%Y%m%d")
 
-    # TODO: Matching information to CT scans must be saved.
-    for idx, scan in enumerate(xvi_file.scans):
-        original_xdr = scan.reconstruction
-        path_to_save = args.OUTPUT_DIRECTORY / build_path(
-            args.format,
-            scan.fraction_number,
-            num_fractions,
-            scan.image_number_in_fraction,
-            num_fractions,
-        )
-        path_to_save.parent.mkdir(exist_ok=True, parents=True)
-        extra_metadata = {}
-        if not args.no_header:
-            for k in XVI_ACQN_TAGS:
-                if hasattr(scan, k):
-                    extra_metadata["XVI_" + k] = getattr(scan, k)
-                    logging.info(f"XVI_{k}: {getattr(scan, k)}")
+    dicom_dict = {
+        "0010|0020": patient.patient_id,
+        "0010|0010": patient_name,  # patient_name,
+        "0010|0030": xvi_reconstruction.patient.date_of_birth.strftime("%Y%m%d"),  # Date of birth
+        "0020|000d": xvi_reconstruction.scan.scan_uid,
+        "0020|000e": "1.2.826.0.1.3680043.2.1126." + modification_date + ".1" + modification_time,
+        "0020|0010": xvi_reconstruction.scan.scan_uid,
+        "0008|0021": modification_date,  # Series date
+        "0008|0031": modification_time,  # Series time
+        "0008|0060": "CT",  # Modality
+        "0008|0008": "DERIVED\\SECONDARY",
+        "0008|1030": "XVI Reconstruct CBCT - XDRT conversion",  # Study Description
+        "0008|103e": "XVI Reconstruct CBCT - XDRT conversion",  # Series Description
+        "0028|1050": str(xvi_reconstruction.scan.level - 1024),  # window center
+        "0028|1051": str(xvi_reconstruction.scan.window),  # window width
+        "0028|1052": "-1024",  # Intercept
+        "0028|1053": "1",  # Slope
+    }
 
-        logging.info(f"Scan {idx + 1}/{num_scans}: {original_xdr} -> {path_to_save}.")
+    # Read the XDR file
+    sitk_image = read_xdr_as_simpleitk(
+        filename,
+        temporal_average=args.temporal_average,
+        slope=args.slope,
+        intercept=args.intercept,
+        cast="uint16",
+        no_header=args.no_header,
+        original_orientation=args.original_orientation,
+    )
+    output_folder = args.OUTPUT_DIRECTORY / xvi_reconstruction.scan.scan_uid
+    output_folder.mkdir(exist_ok=True)
 
-        # Read the XDR file
-        sitk_image = read_xdr_as_simpleitk(
-            original_xdr,
-            temporal_average=args.temporal_average,
-            slope=args.slope,
-            intercept=args.intercept,
-            cast=args.cast,
-            no_header=args.no_header,
-            original_orientation=args.original_orientation,
-        )
+    write_dicom_image(sitk_image, output_folder, metadata=dicom_dict)
 
-        if args.no_origin:
-            sitk_image.SetOrigin([0.0] * sitk_image.GetDimension())
 
-        write_simpleitk_image(
-            sitk_image,
-            path_to_save,
-            no_compression=args.no_compression,
-            extra_metadata=extra_metadata,
-        )
+def write_to_image():
+    """Console script for xdr2img."""
+    base_parser = BaseArgs(
+        "xvi2img reads folders, connects these to the underlying XDR files, and writes these to a directory "
+        " in another medical imaging format."
+    )
 
-        logging.info(f"Wrote output to {path_to_save}.")
+    parser = argparse.ArgumentParser(parents=[base_parser], add_help=True)
+    parser.add_argument("INPUT_XVI", type=pathlib.Path, help="Path to XVI reconstruction folder.")
+    parser.add_argument("OUTPUT_FILE", type=pathlib.Path, help="Path to write output to.")
+
+    args = parser.parse_args()
+    setup_logging(args.verbose)
+    logging.info(f"Reading {args.INPUT_XVI}...")
+    extra_metadata = {}
+    xvi_reconstruction = read_xvi(args.INPUT_XVI)
+
+    reconstruction_dict = xvi_reconstruction.scan._asdict()
+    filename = reconstruction_dict["filename"]
+
+    # Read the XDR file
+    sitk_image = read_xdr_as_simpleitk(
+        filename,
+        temporal_average=args.temporal_average,
+        slope=args.slope,
+        intercept=args.intercept,
+        cast=args.cast,
+        no_header=args.no_header,
+        original_orientation=args.original_orientation,
+    )
+
+    if not args.no_header:
+        _extra_metadata = {**xvi_reconstruction.patient._asdict(), **reconstruction_dict}
+        for key, value in _extra_metadata.items():
+            if isinstance(value, datetime):
+                extra_metadata["XVI_" + key] = value.strftime("%d-%b-%Y (%H:%M:%S)")
+            else:
+                extra_metadata["XVI_" + key] = str(value)
+
+    if args.no_origin:
+        sitk_image.SetOrigin([0.0] * sitk_image.GetDimension())
+
+    write_simpleitk_image(
+        sitk_image,
+        output_image=args.OUTPUT_FILE,
+        no_compression=args.no_compression,
+        extra_metadata=extra_metadata,
+    )
+
+    logging.info(f"Wrote output to {args.OUTPUT_FILE}.")
 
     return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main())  # pragma: no cover
