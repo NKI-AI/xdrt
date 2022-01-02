@@ -1,5 +1,5 @@
-Welcome to XDR Toolkit's documentation!
-======================================
+XDR Toolkit
+===========
 
 .. toctree::
    :maxdepth: 2
@@ -9,7 +9,6 @@ Welcome to XDR Toolkit's documentation!
    installation
    usage
    modules
-   contributing
 
 Indices and tables
 ==================

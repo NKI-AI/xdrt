@@ -20,7 +20,7 @@ from distutils.version import LooseVersion
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
-with open("README.md") as readme_file:
+with open("README.rst") as readme_file:
     readme = readme_file.read()
 
 
@@ -110,7 +110,7 @@ setup(
     ],
     license="Apache Software License 2.0 for the python code, and custom license for the external decoding library.",
     long_description=readme,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     include_package_data=True,
     keywords="xdrt",
     name="xdrt",

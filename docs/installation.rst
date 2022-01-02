@@ -51,7 +51,7 @@ Once you have a copy of the source, you can install it with:
 
 .. code-block:: console
 
-    python setup.py install
+    python -m pip install -e .
 
 This will require that you have `cmake`_ installed. Check the documentation of your operating system, or create
 an `issue`_, so we can improve the documentation.
