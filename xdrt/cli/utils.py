@@ -18,6 +18,7 @@ def setup_logging(verbosity_level):
     level = levels[min(len(levels) - 1, verbosity_level)]
 
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
+    logging.warning("Not intended for clinical use.")
     logging.warning("Beta software. In case you run into issues report at https://github.com/NKI-AI/xdrt/.")
 
 
