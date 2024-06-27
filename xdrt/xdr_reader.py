@@ -74,6 +74,7 @@ class XDRHeader:
 
         self.min_ext = []
         self.max_ext = []
+        self.grid_spacing = None
 
         self.phase = None
 
@@ -168,8 +169,8 @@ class XDRHeader:
                 self.phase = array
             else:
                 setattr(self, camel_to_snake(array_key[3:]), array.reshape((4, 4)))
-        if self.scan_to_siddon is None:
-            raise RuntimeError(f"#$$ScanToSiddon could not be parsed or found in XDR header.")
+        # if self.scan_to_siddon is None:
+        #     raise RuntimeError(f"#$$ScanToSiddon could not be parsed or found in XDR header.")
 
     @property
     def spacing(self):
@@ -181,15 +182,7 @@ class XDRHeader:
         if self.field == "uniform":
             spacing = diff / (np.asarray(self.__shape) - 1)
         elif self.field == "rectilinear":
-            if not len(diff) == self.ndim:
-                raise NotImplementedError(
-                    "Currently spacing is only implemented for \
-                rectilinear fields which have uniform slice thicknesses."
-                )
-            spacing = diff / np.asarray(self.__shape) - 1
-            warnings.warn(
-                "Spacing for rectilinear fields are untested, and will output the same spacing as uniform fields."
-            )
+            return self.grid_spacing
 
         return np.round(spacing, 3)  # micrometer resolution
 
@@ -373,22 +366,36 @@ def read(xdr_filename, stop_before_data=False):
                 dtype=f"<{dtype}",
             )
 
-    # AVSField standard defines the min_ext and max_ext based on final bytes.
-    for _ in range(header.ndim):
-        header.min_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
-        header.max_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
+    if header.field == "rectilinear":
+        grid_spacing = []
+        for dim_num in range(header.ndim):
+            dim_size = header.shape[::-1][dim_num]
+            grid_spacing.append(np.fromfile(file_handler, dtype=">f4", count=dim_size) * 10.0)
+
+        header.grid_spacing = list(reversed(grid_spacing))
+
+
+    else:
+        # AVSField standard defines the min_ext and max_ext based on final bytes.
+        for _ in range(header.ndim):
+            header.min_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
+            header.max_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
+
+        
+        if not header.ndim == len(header.min_ext) == len(header.max_ext):
+            raise IOError(
+                f"Dimension {header.ndim} must match length of min_ext and max_ext."
+                f" Got {header.ndim}, {header.min_ext} and {header.max_ext}"
+            )
+
+
     if file_handler.tell() != path.getsize(xdr_filename):
         file_handler.close()
         raise IOError("Unexpected extra bytes.")
 
     file_handler.close()
 
-    if not header.ndim == len(header.min_ext) == len(header.max_ext):
-        raise IOError(
-            f"Dimension {header.ndim} must match length of min_ext and max_ext."
-            f" Got {header.ndim}, {header.min_ext} and {header.max_ext}"
-        )
-
+    
     shape = header.shape
 
     if header.veclen != 1:
