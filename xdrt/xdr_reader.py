@@ -374,20 +374,17 @@ def read(xdr_filename, stop_before_data=False):
 
         header.grid_spacing = list(reversed(grid_spacing))
 
-
     else:
         # AVSField standard defines the min_ext and max_ext based on final bytes.
         for _ in range(header.ndim):
             header.min_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
             header.max_ext.append(np.fromfile(file_handler, dtype=">f4", count=1)[0] * 10.0)  # * 10. to convert to mm.
 
-        
         if not header.ndim == len(header.min_ext) == len(header.max_ext):
             raise IOError(
                 f"Dimension {header.ndim} must match length of min_ext and max_ext."
                 f" Got {header.ndim}, {header.min_ext} and {header.max_ext}"
             )
-
 
     if file_handler.tell() != path.getsize(xdr_filename):
         file_handler.close()
@@ -395,7 +392,6 @@ def read(xdr_filename, stop_before_data=False):
 
     file_handler.close()
 
-    
     shape = header.shape
 
     if header.veclen != 1:
