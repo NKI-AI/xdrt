@@ -66,7 +66,7 @@ class CMakeBuild(build_ext):
                 "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE",
                 "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
             ]
-            if sys.maxsize > 2 ** 32:
+            if sys.maxsize > 2**32:
                 cmake_args += ["-A", "x64"]
             build_args += ["--", "/m"]
         else:
